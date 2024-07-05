@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:shopapp/data/categories.dart';
 import 'package:shopapp/models/category.dart';
+import 'package:shopapp/models/grocery_item.dart';
 
 class NewItem extends StatefulWidget {
   const NewItem({super.key});
@@ -107,9 +108,11 @@ class _NewItemState extends State<NewItem> {
                       onPressed: () {
                         if (_formKey.currentState!.validate()) {
                           _formKey.currentState!.save();
-                          log(_enteredName);
-                          log(_enteredQantity.toString());
-                          log(_selectedCategory.toString());
+                          Navigator.of(context).pop(GroceryItem(
+                              id: DateTime.now().toString(),
+                              name: _enteredName,
+                              quantity: _enteredQantity,
+                              category: _selectedCategory));
                         }
                       },
                       child: const Text('Add Item'))
