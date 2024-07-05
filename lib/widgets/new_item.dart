@@ -1,9 +1,10 @@
-import 'dart:developer';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:shopapp/data/categories.dart';
 import 'package:shopapp/models/category.dart';
 import 'package:shopapp/models/grocery_item.dart';
+import 'package:http/http.dart' as http;
 
 class NewItem extends StatefulWidget {
   const NewItem({super.key});
@@ -105,14 +106,28 @@ class _NewItemState extends State<NewItem> {
                       },
                       child: const Text('Rest')),
                   ElevatedButton(
-                      onPressed: () {
+                      onPressed: () async {
                         if (_formKey.currentState!.validate()) {
                           _formKey.currentState!.save();
-                          Navigator.of(context).pop(GroceryItem(
-                              id: DateTime.now().toString(),
-                              name: _enteredName,
-                              quantity: _enteredQantity,
-                              category: _selectedCategory));
+                          final Uri url = Uri.https(
+                              'shopapp-9d15c-default-rtdb.firebaseio.com',
+                              'shopping-list.json');
+                          final res = await http.post(url,
+                              headers: {'Content-Type': 'application/json'},
+                              body: json.encode({
+                                'name': _enteredName,
+                                'quantity': _enteredQantity,
+                                'category': _selectedCategory.title,
+                              }));
+
+                          if (res.statusCode == 200) {
+                            Navigator.of(context).pop();
+                          }
+                          // Navigator.of(context).pop(GroceryItem(
+                          //     id: DateTime.now().toString(),
+                          //     name: _enteredName,
+                          //     quantity: _enteredQantity,
+                          //     category: _selectedCategory));
                         }
                       },
                       child: const Text('Add Item'))
