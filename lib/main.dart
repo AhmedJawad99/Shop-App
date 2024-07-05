@@ -12,17 +12,19 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: ThemeData.dark().copyWith(
         brightness: Brightness.dark,
         colorScheme: ColorScheme.fromSeed(
-            seedColor: Colors.deepPurple,
-            surface: const Color.fromARGB(255, 53, 53, 53)),
-        appBarTheme: const AppBarTheme(
-            titleTextStyle: TextStyle(
-                color: Colors.white,
-                fontSize: 20,
-                fontWeight: FontWeight.bold)),
+            seedColor: Color.fromARGB(255, 224, 255, 216),
+            surface: Color.fromARGB(255, 29, 29, 29)),
+        appBarTheme: const AppBarTheme().copyWith(
+          backgroundColor: Color(0xFF075E54),
+          titleTextStyle: const TextStyle(color: Colors.white, fontSize: 23),
+          iconTheme: IconThemeData(color: Colors.white),
+          actionsIconTheme: IconThemeData(color: Colors.white), //
+        ),
         listTileTheme: const ListTileThemeData(
           textColor: Colors.white,
           iconColor: Colors.white,
