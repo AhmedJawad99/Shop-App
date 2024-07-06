@@ -21,47 +21,61 @@ class _GroceryListState extends State<GroceryList> {
   void _loadData() async {
     final Uri url = Uri.https(
         'shopapp-9d15c-default-rtdb.firebaseio.com', 'shopping-list.json');
-    final res = await http.get(url);
-    if (res.statusCode >= 400) {
-      setState(() {
-        _error = 'Failed to fetch data. Please try again later';
-        _isLoading = false;
-      });
-      return;
-    }
 
-    if (json.decode(res.body) == null) {
-      print('No data found');
-      setState(() {
-        _isLoading = false;
-      });
-      return;
-    }
+    try {
+      final res = await http.get(url);
 
-    final Map<String, dynamic> loadedData = json.decode(res.body);
-    final List<GroceryItem> loadedItems = [];
+      // Log the response body and status code for debugging
+      log('Response status: ${res.statusCode}');
+      log('Response body: ${res.body}');
 
-    for (var item in loadedData.entries) {
-      try {
-        final Category category = categories.entries
-            .firstWhere((e) => e.value.title == item.value['category'])
-            .value;
-
-        loadedItems.add(GroceryItem(
-          id: item.key,
-          name: item.value['name'],
-          quantity: item.value['quantity'],
-          category: category,
-        ));
-      } catch (e) {
-        log('Category not found for item: ${item.value['name']}');
+      if (res.statusCode >= 400) {
+        setState(() {
+          _error = 'Failed to fetch data. Please try again later';
+          _isLoading = false;
+        });
+        return;
       }
-    }
 
-    setState(() {
-      _groceryItemsLocal = loadedItems;
-      _isLoading = false;
-    });
+      if (res.body == 'null') {
+        setState(() {
+          _isLoading = false;
+        });
+        return;
+      }
+
+      final Map<String, dynamic> loadedData = json.decode(res.body);
+      final List<GroceryItem> loadedItems = [];
+
+      for (var item in loadedData.entries) {
+        try {
+          final Category category = categories.entries
+              .firstWhere((e) => e.value.title == item.value['category'])
+              .value;
+
+          loadedItems.add(GroceryItem(
+            id: item.key,
+            name: item.value['name'],
+            quantity: item.value['quantity'],
+            category: category,
+          ));
+        } catch (e) {
+          log('Category not found for item: ${item.value['name']}. Error: $e');
+        }
+      }
+
+      setState(() {
+        _groceryItemsLocal = loadedItems;
+        _isLoading = false;
+      });
+    } catch (e) {
+      log('Error: $e');
+      setState(() {
+        _error =
+            'An error occurred while fetching data. Please try again later.';
+        _isLoading = false;
+      });
+    }
   }
 
   @override
