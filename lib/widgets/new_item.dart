@@ -3,8 +3,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shopapp/data/categories.dart';
 import 'package:shopapp/models/category.dart';
-import 'package:shopapp/models/grocery_item.dart';
 import 'package:http/http.dart' as http;
+import 'package:shopapp/models/grocery_item.dart';
 
 class NewItem extends StatefulWidget {
   const NewItem({super.key});
@@ -22,7 +22,7 @@ class _NewItemState extends State<NewItem> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('f'),
+        title: const Text('f'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(9),
@@ -112,17 +112,26 @@ class _NewItemState extends State<NewItem> {
                           final Uri url = Uri.https(
                               'shopapp-9d15c-default-rtdb.firebaseio.com',
                               'shopping-list.json');
-                          final res = await http.post(url,
-                              headers: {'Content-Type': 'application/json'},
-                              body: json.encode({
-                                'name': _enteredName,
-                                'quantity': _enteredQantity,
-                                'category': _selectedCategory.title,
-                              }));
+                          await http
+                              .post(url,
+                                  headers: {'Content-Type': 'application/json'},
+                                  body: json.encode({
+                                    'name': _enteredName,
+                                    'quantity': _enteredQantity,
+                                    'category': _selectedCategory.title,
+                                  }))
+                              .then((res) {
+                            final Map<String, dynamic> resData =
+                                json.decode(res.body);
+                            if (res.statusCode == 200) {
+                              Navigator.of(context).pop(GroceryItem(
+                                  id: resData['name'],
+                                  name: _enteredName,
+                                  quantity: _enteredQantity,
+                                  category: _selectedCategory));
+                            }
+                          });
 
-                          if (res.statusCode == 200) {
-                            Navigator.of(context).pop();
-                          }
                           // Navigator.of(context).pop(GroceryItem(
                           //     id: DateTime.now().toString(),
                           //     name: _enteredName,
