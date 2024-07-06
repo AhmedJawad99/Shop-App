@@ -79,9 +79,7 @@ class _GroceryListState extends State<GroceryList> {
           itemBuilder: (ctx, index) => Dismissible(
                 key: ValueKey(_groceryItemsLocal[index].id),
                 onDismissed: (_) {
-                  setState(() {
-                    _groceryItemsLocal.remove(_groceryItemsLocal[index]);
-                  });
+                  _removeItem(_groceryItemsLocal[index]);
                 },
                 child: ListTile(
                   title: Text(_groceryItemsLocal[index].name),
@@ -108,6 +106,23 @@ class _GroceryListState extends State<GroceryList> {
           ],
         ),
         body: content);
+  }
+
+  void _removeItem(GroceryItem item) async {
+    final index = _groceryItemsLocal.indexOf(item);
+    setState(() {
+      _groceryItemsLocal.remove(item);
+    });
+    final Uri url = Uri.https('2shopapp-9d15c-default-rtdb.firebaseio.com',
+        'shopping-list/${item.id}.json');
+    final res = await http.delete(url);
+    if (res.statusCode >= 400) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('We could not delete the item')));
+      setState(() {
+        _groceryItemsLocal.insert(index, item);
+      });
+    }
   }
 
   _addItem() async {
