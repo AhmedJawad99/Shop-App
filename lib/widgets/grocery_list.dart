@@ -17,10 +17,16 @@ class GroceryList extends StatefulWidget {
 class _GroceryListState extends State<GroceryList> {
   List<GroceryItem> _groceryItemsLocal = [];
   bool _isLoading = true;
+  String? _error;
   void _loadData() async {
     final Uri url = Uri.https(
         'shopapp-9d15c-default-rtdb.firebaseio.com', 'shopping-list.json');
     final res = await http.get(url);
+    if (res.statusCode >= 400) {
+      setState(() {
+        _error = 'Failed to fetch data. Please try again later';
+      });
+    }
 
     if (res.body.isEmpty) {
       return;
@@ -68,33 +74,31 @@ class _GroceryListState extends State<GroceryList> {
       );
     }
     if (_groceryItemsLocal.isNotEmpty) {
-      return Scaffold(
-          appBar: AppBar(
-            title: const Text('Your Grocery'),
-            actions: [
-              IconButton(onPressed: _addItem, icon: const Icon(Icons.add))
-            ],
-          ),
-          body: ListView.builder(
-              itemCount: _groceryItemsLocal.length,
-              itemBuilder: (ctx, index) => Dismissible(
-                    key: ValueKey(_groceryItemsLocal[index].id),
-                    onDismissed: (_) {
-                      setState(() {
-                        _groceryItemsLocal.remove(_groceryItemsLocal[index]);
-                      });
-                    },
-                    child: ListTile(
-                      title: Text(_groceryItemsLocal[index].name),
-                      leading: Container(
-                        height: 24,
-                        width: 24,
-                        color: _groceryItemsLocal[index].category.color,
-                      ),
-                      trailing:
-                          Text(_groceryItemsLocal[index].quantity.toString()),
-                    ),
-                  )));
+      content = ListView.builder(
+          itemCount: _groceryItemsLocal.length,
+          itemBuilder: (ctx, index) => Dismissible(
+                key: ValueKey(_groceryItemsLocal[index].id),
+                onDismissed: (_) {
+                  setState(() {
+                    _groceryItemsLocal.remove(_groceryItemsLocal[index]);
+                  });
+                },
+                child: ListTile(
+                  title: Text(_groceryItemsLocal[index].name),
+                  leading: Container(
+                    height: 24,
+                    width: 24,
+                    color: _groceryItemsLocal[index].category.color,
+                  ),
+                  trailing: Text(_groceryItemsLocal[index].quantity.toString()),
+                ),
+              ));
+    }
+
+    if (_error != null) {
+      content = Center(
+        child: Text(_error!),
+      );
     }
     return Scaffold(
         appBar: AppBar(
