@@ -25,10 +25,16 @@ class _GroceryListState extends State<GroceryList> {
     if (res.statusCode >= 400) {
       setState(() {
         _error = 'Failed to fetch data. Please try again later';
+        _isLoading = false;
       });
+      return;
     }
 
-    if (res.body.isEmpty) {
+    if (json.decode(res.body) == null) {
+      print('No data found');
+      setState(() {
+        _isLoading = false;
+      });
       return;
     }
 
@@ -54,6 +60,7 @@ class _GroceryListState extends State<GroceryList> {
 
     setState(() {
       _groceryItemsLocal = loadedItems;
+      _isLoading = false;
     });
   }
 
@@ -113,7 +120,7 @@ class _GroceryListState extends State<GroceryList> {
     setState(() {
       _groceryItemsLocal.remove(item);
     });
-    final Uri url = Uri.https('2shopapp-9d15c-default-rtdb.firebaseio.com',
+    final Uri url = Uri.https('shopapp-9d15c-default-rtdb.firebaseio.com',
         'shopping-list/${item.id}.json');
     final res = await http.delete(url);
     if (res.statusCode >= 400) {
