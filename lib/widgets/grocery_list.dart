@@ -16,6 +16,7 @@ class GroceryList extends StatefulWidget {
 
 class _GroceryListState extends State<GroceryList> {
   List<GroceryItem> _groceryItemsLocal = [];
+  bool _isLoading = true;
   void _loadData() async {
     final Uri url = Uri.https(
         'shopapp-9d15c-default-rtdb.firebaseio.com', 'shopping-list.json');
@@ -61,6 +62,11 @@ class _GroceryListState extends State<GroceryList> {
     Widget content = const Center(
       child: Text('No item added yet.'),
     );
+    if (_isLoading) {
+      content = const Center(
+        child: CircularProgressIndicator(),
+      );
+    }
     if (_groceryItemsLocal.isNotEmpty) {
       return Scaffold(
           appBar: AppBar(
@@ -109,6 +115,7 @@ class _GroceryListState extends State<GroceryList> {
     }
     setState(() {
       _groceryItemsLocal.add(newItem);
+      _isLoading = false;
     });
   }
 }
